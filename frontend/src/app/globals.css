@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-primary: #15803d; /* green-700 */
+    --color-secondary: #0f172a; /* slate-900 */
+    --color-accent: #eab308; /* yellow-500 */
+    --color-background: #f0fdf4; /* green-50 */
+    --color-surface: #ffffff; /* white */
+    --color-text: #052e16; /* green-900 */
+    --color-text-muted: #166534; /* green-800 */
+    --color-border: #bbf7d0; /* green-200 */
+    --color-success: #22c55e; /* green-500 */
+    --color-error: #ef4444; /* red-500 */
+    --color-warning: #f59e0b; /* amber-500 */
+  }
+
+  [data-theme='dark'] {
+    --color-primary: #4ade80; /* green-400 */
+    --color-secondary: #f8fafc; /* slate-50 */
+    --color-accent: #facc15; /* yellow-400 */
+    --color-background: #052e16; /* green-900 */
+    --color-surface: #14532d; /* green-800 */
+    --color-text: #f0fdf4; /* green-50 */
+    --color-text-muted: #bbf7d0; /* green-200 */
+    --color-border: #166534; /* green-800 */
+  }
+}
+
+@layer utilities {
+  .transition-colors duration-300 ease-in-out {
+    @apply transition-colors duration-300 ease-in-out;
+  }
+}
+
+body {
+  @apply bg-[var(--color-background)] text-[var(--color-text)] transition-colors duration-300 ease-in-out min-h-screen font-sans;
+}
