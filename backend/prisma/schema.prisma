@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  role      String   // Using String for sqlite since Enums are not supported
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  auditLogs AuditLog[]
+}
+
+model Shipment {
+  id              String   @id @default(uuid())
+  trackingNumber  String   @unique
+  senderData      String   // Using String (JSON stringified) since Json type is not fully supported in sqlite in old versions, but Prisma supports it via String
+  receiverData    String
+  value           Float
+  weight          Float
+  status          String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  events    ShipmentEvent[]
+  documents Document[]
+  manifests ManifestShipment[]
+}
+
+model ShipmentEvent {
+  id         String   @id @default(uuid())
+  shipmentId String
+  shipment   Shipment @relation(fields: [shipmentId], references: [id])
+  eventType  String
+  location   String?
+  metadata   String?
+  createdAt  DateTime @default(now())
+
+  @@index([shipmentId])
+}
+
+model Manifest {
+  id              String   @id @default(uuid())
+  manifestNumber  String   @unique
+  status          String
+  transmittedAt   DateTime?
+  customsResponse String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  shipments           ManifestShipment[]
+  customsTransmissions CustomsTransmission[]
+}
+
+model ManifestShipment {
+  manifestId String
+  manifest   Manifest @relation(fields: [manifestId], references: [id])
+  shipmentId String
+  shipment   Shipment @relation(fields: [shipmentId], references: [id])
+
+  @@id([manifestId, shipmentId])
+}
+
+model CustomsTransmission {
+  id          String   @id @default(uuid())
+  manifestId  String
+  manifest    Manifest @relation(fields: [manifestId], references: [id])
+  xmlPayload  String
+  signedXml   String?
+  responseXml String?
+  status      String
+  createdAt   DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  entityId  String
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Document {
+  id         String   @id @default(uuid())
+  shipmentId String
+  shipment   Shipment @relation(fields: [shipmentId], references: [id])
+  filename   String
+  mimeType   String
+  size       Int
+  hashSha256 String
+  s3Key      String
+  createdAt  DateTime @default(now())
+
+  @@index([shipmentId])
+}
